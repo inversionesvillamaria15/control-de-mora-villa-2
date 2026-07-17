@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control de Mora · Villa María</title>
+<style>
+  :root {
+    --verde-monte: #1e4633;
+    --verde-hoja: #2e6b4a;
+    --papel: #f7f5ef;
+    --tinta: #22251f;
+    --arena: #e4dfd2;
+    --oro: #b98a2f;
+    --rojo: #a4342b;
+    --blanco: #ffffff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: Georgia, 'Times New Roman', serif;
+    background: var(--papel);
+    color: var(--tinta);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  header {
+    width: 100%;
+    background: var(--rojo);
+    color: var(--papel);
+    padding: 28px 20px 24px;
+    text-align: center;
+    border-bottom: 4px double var(--oro);
+  }
+  header .marca {
+    font-size: 13px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--oro);
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  header h1 {
+    font-size: 30px;
+    font-weight: normal;
+    letter-spacing: 1px;
+    margin-top: 6px;
+  }
+  main {
+    width: 100%;
+    max-width: 560px;
+    padding: 36px 20px 60px;
+  }
+  .tarjeta {
+    background: var(--blanco);
+    border: 1px solid var(--arena);
+    border-top: 5px solid var(--rojo);
+    box-shadow: 0 2px 14px rgba(164, 52, 43, 0.1);
+    padding: 28px 26px;
+  }
+  .tarjeta h2 {
+    font-size: 18px;
+    font-weight: normal;
+    margin-bottom: 4px;
+  }
+  .tarjeta p.sub {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    color: #6b6f66;
+    margin-bottom: 22px;
+  }
+  .modos {
+    display: flex;
+    border: 1px solid var(--arena);
+    margin-bottom: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  .modos button {
+    flex: 1;
+    padding: 10px;
+    background: var(--papel);
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    color: #6b6f66;
+  }
+  .modos button.activo {
+    background: var(--rojo);
+    color: var(--papel);
+    font-weight: bold;
+  }
+  label {
+    display: block;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--verde-hoja);
+    margin-bottom: 6px;
+  }
+  input[type="text"] {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 16px;
+    font-family: Georgia, serif;
+    border: 1px solid var(--arena);
+    background: var(--papel);
+    margin-bottom: 16px;
+  }
+  input[type="text"]:focus {
+    outline: 2px solid var(--rojo);
+    outline-offset: -1px;
+    background: var(--blanco);
+  }
+  .fila-doble { display: flex; gap: 12px; }
+  .fila-doble > div { flex: 1; }
+  .btn-principal {
+    width: 100%;
+    padding: 14px;
+    font-size: 15px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    color: var(--papel);
+    background: var(--rojo);
+    border: none;
+    cursor: pointer;
+  }
+  .btn-principal:hover:not(:disabled) { background: #8b2a22; }
+  .btn-principal:disabled { background: #9aa79f; cursor: wait; }
+  .lista-clientes { margin-bottom: 16px; }
+  .cliente-opcion {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: var(--papel);
+    border: 1px solid var(--arena);
+    border-left: 4px solid var(--oro);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    font-family: Georgia, serif;
+    font-size: 15px;
+  }
+  .cliente-opcion:hover { background: var(--blanco); border-left-color: var(--rojo); }
+  .cliente-opcion small {
+    display: block;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    color: #6b6f66;
+    margin-top: 2px;
+  }
+  .cargando {
+    display: none;
+    text-align: center;
+    padding: 26px 10px 10px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    color: var(--rojo);
+  }
+  .cargando .sello {
+    width: 46px; height: 46px;
+    margin: 0 auto 12px;
+    border: 3px solid var(--arena);
+    border-top-color: var(--rojo);
+    border-radius: 50%;
+    animation: girar 0.9s linear infinite;
+  }
+  @keyframes girar { to { transform: rotate(360deg); } }
+  .resultado {
+    display: none;
+    margin-top: 22px;
+    border: 1px dashed var(--rojo);
+    background: #fdf3f2;
+    padding: 20px;
+    text-align: center;
+  }
+  .resultado .ok {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--rojo);
+    margin-bottom: 10px;
+  }
+  .resultado a.descargar {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 12px 26px;
+    background: var(--oro);
+    color: var(--blanco);
+    text-decoration: none;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: 14px;
+  }
+  .resultado a.descargar:hover { background: #a1761f; }
+  .error {
+    display: none;
+    margin-top: 18px;
+    padding: 14px 16px;
+    background: #faf0ef;
+    border-left: 4px solid var(--rojo);
+    color: var(--rojo);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+  }
+  footer {
+    margin-top: auto;
+    padding: 18px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    color: #8a8d84;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="marca">Inversiones</div>
+  <h1>Control de Mora</h1>
+</header>
+
+<main>
+  <div class="tarjeta">
+    <h2>Control detallado de cuotas y mora</h2>
+    <p class="sub">Genera el PDF con el calendario de pagos, cuotas pendientes y mora acumulada.</p>
+
+    <div class="modos">
+      <button type="button" id="tabId" class="activo" onclick="cambiarModo('id')">Por ID de cliente</button>
+      <button type="button" id="tabLote" onclick="cambiarModo('lote')">Por Polígono y Lote</button>
+    </div>
+
+    <div id="modoId">
+      <label for="inputId">ID del cliente</label>
+      <input type="text" id="inputId" placeholder="Ej: sg9" autocomplete="off">
+      <button type="button" class="btn-principal" id="btnGenerar" onclick="generarPorId()">Generar control de mora</button>
+    </div>
+
+    <div id="modoLote" style="display:none;">
+      <div class="fila-doble">
+        <div>
+          <label for="inputPoli">Polígono</label>
+          <input type="text" id="inputPoli" placeholder="Ej: G" autocomplete="off">
+        </div>
+        <div>
+          <label for="inputLote">Lote</label>
+          <input type="text" id="inputLote" placeholder="Ej: 9" autocomplete="off">
+        </div>
+      </div>
+      <div class="lista-clientes" id="listaClientes"></div>
+      <button type="button" class="btn-principal" id="btnBuscar" onclick="buscarPorLote()">Buscar cliente</button>
+    </div>
+
+    <div class="cargando" id="cargando">
+      <div class="sello"></div>
+      <span id="textoCarga">Generando documento… esto toma unos 15-20 segundos.</span>
+    </div>
+
+    <div class="resultado" id="resultado">
+      <div class="ok">✓ Documento listo</div>
+      <div id="resInfo" style="font-size:15px;"></div>
+      <a class="descargar" id="linkPDF" href="#" target="_blank" rel="noopener">Descargar PDF</a>
+    </div>
+
+    <div class="error" id="error"></div>
+  </div>
+</main>
+
+<footer>Sistema Integral Villa María · 2026</footer>
+
+<script>
+  // ⚠️ PEGA AQUÍ TU URL DE WEB APP
+  const API_URL = "https://script.google.com/macros/s/AKfycbxEojppI1enN-k5Ejm_wO5Hy1TOBqxEh5raZ_8DS4uZujuyAO_m6oXUqVvOljBvO31q/exec";
+
+  // --- JSONP: burla CORS cargando el JSON como si fuera un script ---
+  let jsonpCounter = 0;
+  function jsonpRequest(params, timeoutMs) {
+    return new Promise((resolve, reject) => {
+      const cbName = 'jsonpCb_' + (++jsonpCounter) + '_' + Date.now();
+      const script = document.createElement('script');
+      const timer = setTimeout(() => {
+        cleanup();
+        reject(new Error('Tiempo de espera agotado'));
+      }, timeoutMs || 60000);
+
+      function cleanup() {
+        clearTimeout(timer);
+        delete window[cbName];
+        if (script.parentNode) script.parentNode.removeChild(script);
+      }
+
+      window[cbName] = function(data) {
+        cleanup();
+        resolve(data);
+      };
+
+      script.onerror = () => {
+        cleanup();
+        reject(new Error('Error de red o URL inválida'));
+      };
+
+      const query = params + '&callback=' + cbName;
+      script.src = API_URL + '?' + query;
+      document.body.appendChild(script);
+    });
+  }
+
+  function cambiarModo(modo) {
+    document.getElementById('modoId').style.display = modo === 'id' ? 'block' : 'none';
+    document.getElementById('modoLote').style.display = modo === 'lote' ? 'block' : 'none';
+    document.getElementById('tabId').classList.toggle('activo', modo === 'id');
+    document.getElementById('tabLote').classList.toggle('activo', modo === 'lote');
+    ocultarMensajes();
+  }
+
+  function ocultarMensajes() {
+    document.getElementById('resultado').style.display = 'none';
+    document.getElementById('error').style.display = 'none';
+    document.getElementById('cargando').style.display = 'none';
+    document.getElementById('listaClientes').innerHTML = '';
+  }
+
+  function mostrarError(msj) {
+    ocultarMensajes();
+    const e = document.getElementById('error');
+    e.textContent = msj;
+    e.style.display = 'block';
+    bloquear(false);
+  }
+
+  function bloquear(estado) {
+    document.getElementById('btnGenerar').disabled = estado;
+    document.getElementById('btnBuscar').disabled = estado;
+  }
+
+  async function generarPorId(idExterno) {
+    const id = (idExterno || document.getElementById('inputId').value).trim();
+    if (!id) { mostrarError('Escribe el ID del cliente.'); return; }
+
+    ocultarMensajes();
+    bloquear(true);
+    document.getElementById('textoCarga').textContent = 'Generando documento… esto toma unos 15-20 segundos.';
+    document.getElementById('cargando').style.display = 'block';
+
+    try {
+      const data = await jsonpRequest('action=generarControlMora&id=' + encodeURIComponent(id), 60000);
+      if (data.status === 'success' && data.url) {
+        ocultarMensajes();
+        document.getElementById('resInfo').textContent = 'Control de mora del cliente ' + id;
+        document.getElementById('linkPDF').href = data.url;
+        document.getElementById('resultado').style.display = 'block';
+      } else {
+        mostrarError(data.message || 'No se pudo generar el documento.');
+      }
+    } catch (err) {
+      mostrarError(err.message);
+    }
+    bloquear(false);
+  }
+
+  async function buscarPorLote() {
+    const p = document.getElementById('inputPoli').value.trim();
+    const l = document.getElementById('inputLote').value.trim();
+    if (!p || !l) { mostrarError('Completa el polígono y el lote.'); return; }
+
+    ocultarMensajes();
+    bloquear(true);
+    document.getElementById('textoCarga').textContent = 'Buscando cliente…';
+    document.getElementById('cargando').style.display = 'block';
+
+    try {
+      const clientes = await jsonpRequest('action=buscarPorLote&poligono=' + encodeURIComponent(p) + '&lote=' + encodeURIComponent(l), 30000);
+      ocultarMensajes();
+
+      if (!Array.isArray(clientes) || clientes.length === 0) {
+        mostrarError('No se encontró ningún cliente en el Polígono ' + p.toUpperCase() + ', Lote ' + l.toUpperCase() + '.');
+      } else {
+        const lista = document.getElementById('listaClientes');
+        clientes.forEach(c => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'cliente-opcion';
+          btn.innerHTML = c.nombre + '<small>ID: ' + c.id + ' · DUI: ' + c.dui + '</small>';
+          btn.onclick = () => generarPorId(c.id);
+          lista.appendChild(btn);
+        });
+      }
+    } catch (err) {
+      mostrarError(err.message);
+    }
+    bloquear(false);
+  }
+
+  document.getElementById('inputId').addEventListener('keydown', e => { if (e.key === 'Enter') generarPorId(); });
+  document.getElementById('inputLote').addEventListener('keydown', e => { if (e.key === 'Enter') buscarPorLote(); });
+</script>
+</body>
+</html>
